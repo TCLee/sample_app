@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title><%= title %></title>
+		<title><%= title %></title>		
 		<%= csrf_meta_tag %>
+		<%= stylesheet_link_tag('blueprint/screen.css', { :media => 'screen' }) %>
+		<%= stylesheet_link_tag 'blueprint/print.css', :media => 'print' %>
 	</head>
 	<body>
 		<%= yield %>
