@@ -50,8 +50,35 @@ describe UsersController do
                                            :content => "2")
         response.should have_selector("a", :href => "/users?page=2", 
                                            :content => "Next")
-      end
+      end        
     end    
+    
+    describe "for admin users" do
+      before :each do 
+        @admin = Factory(:user, :email => "admin@example.com", :admin => true)
+        test_sign_in(@admin)
+      end
+
+      it "should show delete links" do
+        get :index
+        response.should have_selector("a", :href => user_path(@admin), 
+                                           :content => "delete")
+      end
+    end
+
+    describe "for non-admin users" do
+      before :each do 
+        @not_admin = Factory(:user, :admin => false)
+        test_sign_in(@not_admin)
+      end
+
+      it "should not show delete links" do
+        get :index
+        response.should_not have_selector("a", :href => user_path(@not_admin), 
+                                               :content => "delete")                        
+      end
+    end          
+
   end
   
   describe "GET 'show'" do
@@ -99,23 +126,35 @@ describe UsersController do
     
     it "should have a name field" do
       get :new
-      response.should have_selector "input[name='user[name]'][type='text']"
+      response.should have_selector("input[name='user[name]'][type='text']")
     end
     
     it "should have an email field" do
       get :new
-      response.should have_selector "input[name='user[email]'][type='text']"
+      response.should have_selector("input[name='user[email]'][type='text']")
     end
     
     it "should have a password field" do
       get :new
-      response.should have_selector "input[name='user[password]'][type='password']"
+      response.should have_selector("input[name='user[password]'][type='password']")
     end
     
     it "should have a password confirmation field" do
       get :new
-      response.should have_selector "input[name='user[password_confirmation]'][type='password']"
-    end            
+      response.should have_selector("input[name='user[password_confirmation]'][type='password']")
+    end
+    
+    describe "as signed-in user" do
+      before :each do
+        @user = Factory(:user)
+        test_sign_in(@user)
+      end
+      
+      it "should redirect to root url" do
+        get :new
+        response.should redirect_to(root_path)
+      end
+    end
   end  
   
   describe "POST 'create'" do
@@ -172,7 +211,20 @@ describe UsersController do
         post :create, :user => @attr
         controller.should be_signed_in
       end
-    end    
+    end     
+  
+    describe "as signed-in user" do
+      before :each do
+        @user = Factory(:user)
+        test_sign_in(@user)
+      end
+      
+      it "should redirect to root url" do
+        post :create, :user => {}
+        response.should redirect_to(root_path)
+      end
+    end
+  
   end
 
   describe "GET 'edit'" do
@@ -303,8 +355,8 @@ describe UsersController do
     
     describe "as an admin user" do
       before :each do 
-        admin = Factory(:user, :email => "admin@example.com", :admin => true)
-        test_sign_in(admin)
+        @admin = Factory(:user, :email => "admin@example.com", :admin => true)
+        test_sign_in(@admin)
       end
       
       it "should destroy the user" do
@@ -316,6 +368,12 @@ describe UsersController do
       it "should redirect to the users page" do
         delete :destroy, :id => @user
         response.should redirect_to(users_path)
+      end
+      
+      it "should not be able to delete themselves" do
+        lambda do
+          delete :destroy, :id => @admin
+        end.should change(User, :count).by(0)
       end
     end
   end
