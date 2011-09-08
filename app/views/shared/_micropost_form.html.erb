@@ -1,7 +1,12 @@
 <%= form_for @micropost do |f| %>
   <%= render 'shared/error_messages', :object => f.object %>
   <div class="field">
-    <%= f.text_area :content %>
+    <%= f.text_area :content, 
+    :onKeyDown => "countCharacters(this, document.getElementById('charCounterLabel'), 140);", 
+    :onKeyUp => "countCharacters(this, document.getElementById('charCounterLabel'), 140);" %>
+  </div>
+  <div class="field">
+    <span id="charCounterLabel">140</span> characters remaining
   </div>
   <div class="actions">
     <%= f.submit "Submit" %>
