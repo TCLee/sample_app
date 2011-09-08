@@ -1,24 +1,5 @@
-<% if signed_in? %>
-  <table class="front" summary="For signed-in users">
-    <tr>
-      <td class="main">
-        <h1 class="micropost">What's up?</h1>
-        <%= render 'shared/micropost_form'%>
-        <%= render 'shared/feed' %>
-      </td>
-      <td class="sidebar round">
-        <%= render 'shared/user_info' %>
-      </td>
-    </tr>
-  </table>
+<% if signed_in? %>  
+  <%= render 'pages/signed_in_home' %>
 <% else %>
-  <h1>Sample App</h1>
-  <p>
-  	This is the home page for the 
-  	<a href="http://railstutorial.org">Ruby on Rails Tutorial sample 
-  		application.</a>
-  </p>
-
-  <%= link_to("Sign up now!", signup_path, 
-              :class => "signup_button round") %>
+  <%= render 'pages/not_signed_in_home' %>
 <% end %>
