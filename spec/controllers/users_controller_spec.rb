@@ -82,8 +82,7 @@ describe UsersController do
   end
   
   describe "GET 'show'" do
-    
-    before(:each) do
+    before :each do
       @user = Factory(:user)
     end
     
@@ -110,6 +109,14 @@ describe UsersController do
     it "should have a profile image" do
       get :show, :id => @user
       response.should have_selector("h1>img", :class => "gravatar")
+    end
+    
+    it "should show the user's microposts" do
+      micropost1 = Factory(:micropost, :user => @user, :content => "Foo bar")
+      micropost2 = Factory(:micropost, :user => @user, :content => "Baz quux")
+      get :show, :id => @user
+      response.should have_selector("span.content", :content => micropost1.content)
+      response.should have_selector("span.content", :content => micropost2.content)
     end
   end
   
