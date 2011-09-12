@@ -1,21 +1,31 @@
+require 'digest'
+
 # == Schema Information
 #
 # Table name: users
 #
-#  id         :integer         not null, primary key
-#  name       :string(255)
-#  email      :string(255)
-#  created_at :datetime
-#  updated_at :datetime
+#  id                 :integer         not null, primary key
+#  name               :string(255)
+#  email              :string(255)
+#  created_at         :datetime
+#  updated_at         :datetime
+#  encrypted_password :string(255)
+#  salt               :string(255)
+#  admin              :boolean         default(FALSE)
 #
-
-require 'digest'
-
 class User < ActiveRecord::Base
   attr_accessor :password
   attr_accessible :name, :email, :password, :password_confirmation
   
-  has_many :microposts, :dependent => :destroy
+  has_many :microposts, :dependent => :destroy  
+  has_many :relationships, :foreign_key => "follower_id", 
+                           :class_name => "Relationship",
+                           :dependent => :destroy
+  has_many :following, :through => :relationships, :source => :followed  
+  has_many :reverse_relationships, :foreign_key => "followed_id",
+                                   :class_name => "Relationship",
+                                   :dependent => :destroy
+  has_many :followers, :through => :reverse_relationships, :source => :follower
   
   email_regex = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
   
@@ -46,9 +56,23 @@ class User < ActiveRecord::Base
     (user && (user.salt == cookie_salt)) ? user : nil
   end
   
+  # Returns true if user is following 'followed'; false otherwise
+  def following?(followed)
+    self.relationships.find_by_followed_id(followed.id)
+  end
+  
+  def follow!(followed)
+    self.relationships.create!(:followed_id => followed.id)
+  end
+  
+  def unfollow!(followed)
+    self.relationships.find_by_followed_id(followed.id).destroy()
+  end
+  
+  # Returns all the Microposts from others followed by user 
+  # and the user itself.
   def feed
-    # TODO: See ROR Tutorial Chapter 12 for complete implementation.
-    Micropost.where "user_id = ?", self.id
+    Micropost.from_users_followed_by(self)
   end
   
   private
