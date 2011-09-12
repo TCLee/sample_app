@@ -44,5 +44,12 @@ describe Relationship do
       @relationship.should_not be_valid
     end
   end
+
+  describe "relationship associations" do    
+    it "should destroy associated relationships" do
+      @followed.destroy
+      Relationship.find_by_id(@relationship.id).should be_nil
+    end
+  end
 end
 
