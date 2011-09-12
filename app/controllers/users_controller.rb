@@ -67,21 +67,22 @@ class UsersController < ApplicationController
     redirect_to users_path
   end
   
-  def following
-    @title = "Following"
-    @user = User.find(params[:id])
-    @users = @user.following.paginate(:page => params[:page])
-    render 'show_follow'
+  def following    
+    show_follow(:following)
   end
   
   def followers
-    @title = "Followers"
-    @user = User.find(params[:id])
-    @users = @user.followers.paginate(:page => params[:page])
-    render 'show_follow'
+    show_follow(:followers)
   end
   
   private
+  
+    def show_follow(action)
+      @title = action.to_s.capitalize
+      @user = User.find(params[:id])
+      @users = @user.send(action).paginate(:page => params[:page])
+      render 'show_follow'
+    end
       
     def correct_user
       @user = User.find(params[:id])
