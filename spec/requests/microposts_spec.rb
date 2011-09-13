@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe "Microposts" do  
-  before :each do
+  before(:each) do
     user = Factory(:user)
     visit signin_path
     fill_in :email, :with => user.email

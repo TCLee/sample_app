@@ -15,7 +15,7 @@ describe "Users" do
           click_button
           response.should render_template 'users/new'
           response.should have_selector "div#error_explanation"
-        end.should_not change User, :count
+        end.should_not change(User, :count)
       end
     end
     
@@ -30,7 +30,7 @@ describe "Users" do
           click_button
           response.should have_selector "div.flash.success", :content => "Welcome"
           response.should render_template 'users/show'
-        end.should change(User, :count).by 1
+        end.should change(User, :count).by(1)
       end
     end
   end  
